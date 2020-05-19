@@ -1,0 +1,283 @@
+public class CircularArray{
+
+    private int start;
+    private int size;
+    private Object [] cir;
+
+    /*
+     * if Object [] lin = {10, 20, 30, 40, null}
+     * then, CircularArray(lin, 2, 4) will generate
+     * Object [] cir = {40, null, 10, 20, 30}
+     */
+    public CircularArray(Object [] lin, int st, int sz){
+        start=st;
+        size=sz;
+        int x=st;
+        cir=new Object[lin.length];
+        for(int i=0;i<cir.length;i++){
+            cir[x]=lin[i];
+            x=(x+1)%cir.length;
+        }
+    }
+
+    //Prints from index --> 0 to cir.length-1
+    public void printFullLinear(){
+        for(int i=0;i<cir.length;i++){
+            System.out.print(cir[i]);
+            if(i!=cir.length-1) System.out.print(", ");
+            else System.out.print(".");
+        }
+        System.out.println();
+    }
+
+    // Starts Printing from index start. Prints a total of size elements
+    public void printForward(){
+        //Circularize
+        int x=start;
+        Object f[]=new Object[cir.length];
+        for(int i=0;i<cir.length;i++){
+            f[i]=cir[x];
+            x=(x+1)%cir.length;
+        }
+        for(int i=0;i<f.length;i++) {
+            if (f[i] != null) {
+                System.out.print(f[i]);
+                if (i != size - 1) System.out.print(", ");
+                else System.out.print(".");
+            }
+        }
+
+        System.out.println();
+    }
+    public void printBackward(){
+        int x=start;
+        Object b[]=new Object[cir.length];
+        for(int i=0;i<cir.length;i++){
+            b[i]=cir[x];
+            x=(x+1)%cir.length;
+        }
+        for(int i=b.length-1;i>=0;i--){
+            if(b[i]!=null){
+                System.out.print(b[i]);
+                if (i != 0) System.out.print(", ");
+                else System.out.print(".");
+            }
+        }
+    }
+    // With no null cells
+    public void linearize(){
+        //New array
+        int x=start;
+        Object temp[]=new Object[cir.length];
+        for(int i=0;i<cir.length;i++) temp[i]=cir[i];
+        //Linearize
+        for(int i=0;i<cir.length;i++){
+            temp[i]=cir[x];
+            x=(x+1)%temp.length;
+        }
+        //No null
+        for(int i=0;i<temp.length;i++){
+            if(temp[i]==null){
+                for(int j=i;j<temp.length-1;j++) {
+                    temp[j] = temp[j + 1];
+
+                }
+                temp[temp.length-1]=0;
+            }
+        }
+        //New cir
+        cir=new Object[size];
+        for(int i=0;i<cir.length;i++) cir[i]=temp[i];
+    }
+
+    // Do not change the Start index
+    public void resizeStartUnchanged(int newcapacity) {
+        //copy array
+        Object[] temp = new Object[cir.length];
+        //Resizing cir
+        for(int i=0;i<temp.length;i++) temp[i]=cir[i];
+        cir=new Object[newcapacity];
+        int x=start;
+        for(int i=0;i<size;i++){
+            cir[i]=temp[x];
+            x=(x+1)%temp.length;
+        }
+        //Circularize
+        for(int i=0;i<start;i++){
+            Object temp1=cir[cir.length-1];
+            for(int j=cir.length-1;j>0;j--){
+                cir[j]=cir[j-1];
+            }
+            cir[0]=temp1;
+        }
+    }
+    // Start index becomes zero
+    public void resizeByLinearize(int newcapacity){
+        //copy array
+        Object[] temp = new Object[cir.length];
+        for(int i=0;i<temp.length;i++) temp[i]=cir[i];
+        //Linearizing
+        cir=new Object[newcapacity];
+        int x=start;
+        for(int i=0;i<size;i++){
+            cir[i]=temp[x];
+            x=(x+1)%temp.length;
+        }
+
+    }
+    /* pos --> position relative to start. Valid range of pos--> 0 to size.
+     * Increase array length by 3 if size==cir.length
+     * use resizeStartUnchanged() for resizing.
+     */
+    public void insertByRightShift(Object elem, int pos){
+        //Resize
+        int count=0;
+        for(int i=0;i<cir.length;i++){
+            if(cir[i]!=null){
+                count++;
+            }
+        }
+        if(count==cir.length) resizeStartUnchanged(cir.length+3);
+        //Insert
+        int NumOfShift=(size-pos);
+        int posiLin=(start+pos)%cir.length;
+        int endLin=(start+size)%cir.length;
+        for(int i=0;i<NumOfShift;i++){
+            if(endLin==0){
+                endLin=cir.length-1;
+                cir[0]=cir[cir.length-1];
+            }
+            cir[endLin]=cir[endLin-1];
+            endLin--;
+
+        }
+        cir[posiLin]=elem;
+    }
+
+    public void insertByLeftShift(Object elem, int pos){
+        //Resize
+        int count=0;
+        for(int i=0;i<cir.length;i++){
+            if(cir[i]!=null){
+                count++;
+            }
+        }
+        if(count==cir.length) resizeStartUnchanged(cir.length+3);
+        //Insert
+        int NumOfShift=(size-pos);
+        int posiLin=(start+pos)%cir.length;
+        start=start-1;
+        if(start<0){
+            start=cir.length-1;
+        }
+        int stLin=start;
+        for(int i=0;i<NumOfShift;i++){
+            if(stLin==cir.length-1){
+                stLin=0;
+                cir[cir.length-1]=cir[0];
+            }
+            cir[stLin]=cir[stLin+1];
+            stLin++;
+
+        }
+        cir[posiLin]=elem;
+    }
+
+    /* parameter--> pos. pos --> position relative to start.
+     * Valid range of pos--> 0 to size-1
+     */
+    public void removeByLeftShift(int pos){
+        int numOfShift=(size-pos);
+        int endLin=(start+size)%cir.length;
+        int posiLin=(start+pos)%cir.length;
+        for(int i=0;i<numOfShift;i++){
+            if(posiLin==cir.length-1){
+                posiLin=0;
+                cir[cir.length-1]=cir[0];
+            }
+            cir[posiLin]=cir[posiLin+1];
+            posiLin++;
+        }
+        cir[endLin]=null;
+    }
+
+    /* parameter--> pos. pos --> position relative to start.
+     * Valid range of pos--> 0 to size-1
+     */
+    public void removeByRightShift(int pos){
+        int numOfShift=(size-pos+1);
+        int posiLin=(start+pos)%cir.length;
+        int endLin=posiLin;
+        for(int i=0;i<numOfShift;i++){
+            if(endLin==0){
+                endLin=cir.length-1;
+                cir[0]=cir[cir.length-1];
+            }
+            cir[endLin]=cir[endLin-1];
+            endLin--;
+        }
+        cir[start]=null;
+    }
+
+
+    //This method will check whether the array is palindrome or not
+    public void palindromeCheck(){
+        linearize();
+        int count=0;
+        int i=size-1;
+        int limit=size/2;
+        for(int j=0;j<limit;j++){
+            if(cir[i]==cir[j]) count++;
+            i--;
+        }
+        if(count==(size/2)) System.out.println("This array is a palindrome");
+        else System.out.println("This array is not a palindrome");
+    }
+
+
+    //This method will sort the values by keeping the start unchanged
+    public void sort(){
+        //Sorting
+        linearize();
+        for(int i=0;i<size;i++){
+            for(int j=0;j<size;j++) {
+                if ((int) cir[i] < (int) cir[j]) {
+                    int temp = (int) cir[i];
+                    cir[i] = cir[j];
+                    cir[j] = temp;
+                }
+            }
+        }
+        //Circularizing
+        int x=start;
+        Object temp[]=new Object[size];
+        for(int i=0;i<temp.length;i++) temp[i]=cir[i];
+        for(int i=0;i<cir.length;i++){
+            cir[x]=temp[i];
+            x=(x+1)%cir.length;
+        }
+    }
+
+    //This method will check the given array across the base array and if they are equivalent
+    // interms of values return true, or else return false
+    public boolean equivalent(CircularArray k) {
+        int count=0;
+        Object temp[]=new Object[cir.length];
+        for(int i=0;i<temp.length;i++) temp[i]=cir[i];
+        linearize();
+        k.linearize();
+        int test[]=new int[k.size];
+        for(int i=0;i<size;i++){
+            for(int j=0;j<k.size;j++){
+                if(cir[i]==k.cir[j]&&test[j]==0){
+                    test[j]=1;
+                    count++;
+                    break;
+                }
+            }
+        }
+        cir=temp;
+        if(count==size) return true;
+        else return false;
+    }
+}
